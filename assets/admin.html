@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Administration · Lindblad Route Planner</title>
+  <link rel="stylesheet" href="/admin.css">
+  <link rel="stylesheet" href="/account.css">
+</head>
+<body>
+  <header class="page-header">
+    <div><span>ENTERPRISE 1.0</span><h1>User administration</h1><p>Create password-protected users and assign shared organization workspaces.</p></div>
+    <a class="back" href="/">Back to planner</a>
+  </header>
+  <main>
+    <section class="card">
+      <div class="section-head"><div><h2>Organizations</h2><p>Users in the same organization share OLEX databases and RTZ files.</p></div><button id="newOrg">New organization</button></div>
+      <div id="orgList" class="table-wrap"></div>
+    </section>
+    <section class="card">
+      <div class="section-head"><div><h2>Users</h2><p>Viewer accounts cannot upload, rename, disable or remove databases.</p></div><button id="newUser">New user</button></div>
+      <div id="userList" class="table-wrap"></div>
+    </section>
+    <div id="message" class="message" role="status"></div>
+  </main>
+
+  <dialog id="orgDialog">
+    <form method="dialog" id="orgForm">
+      <h2 id="orgDialogTitle">New organization</h2>
+      <input type="hidden" id="orgId">
+      <label>Name<input id="orgName" required maxlength="100"></label>
+      <label>Storage quota in GB <small>(0 = limited only by server storage)</small><input id="orgQuota" type="number" min="0" step="1" value="0"></label>
+      <div class="actions"><button type="button" class="secondary" data-close-dialog>Cancel</button><button id="saveOrg" value="default">Save</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="userDialog">
+    <form method="dialog" id="userForm">
+      <h2>New user</h2>
+      <label>Username<input id="userUsername" required minlength="3" maxlength="64" autocomplete="off"></label>
+      <label>Display name<input id="userDisplay" required maxlength="100"></label>
+      <label>Temporary password<input id="userPassword" type="password" required minlength="15" maxlength="256" autocomplete="new-password"></label>
+      <label>Role<select id="userRole"><option value="planner">Planner</option><option value="viewer">Viewer</option><option value="admin">Administrator</option></select></label>
+      <label>Organization<select id="userOrg"></select></label>
+      <div class="actions"><button type="button" class="secondary" data-close-dialog>Cancel</button><button id="saveUser" value="default">Create user</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="editUserDialog">
+    <form method="dialog" id="editUserForm">
+      <h2>Edit user</h2>
+      <input type="hidden" id="editUserId">
+      <label>Display name<input id="editUserDisplay" required maxlength="100"></label>
+      <label>Role<select id="editUserRole"><option value="planner">Planner</option><option value="viewer">Viewer</option><option value="admin">Administrator</option></select></label>
+      <label>Organization<select id="editUserOrg"></select></label>
+      <label class="check"><input id="editUserDisabled" type="checkbox"> Disable this account</label>
+      <div class="actions"><button type="button" class="secondary" data-close-dialog>Cancel</button><button value="default">Save changes</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="passwordDialog">
+    <form method="dialog" id="passwordForm">
+      <h2>Reset password</h2>
+      <input type="hidden" id="passwordUserId">
+      <label>New temporary password<input id="newPassword" type="password" required minlength="15" maxlength="256" autocomplete="new-password"></label>
+      <p>The user’s current sessions will be signed out immediately.</p>
+      <div class="actions"><button type="button" class="secondary" data-close-dialog>Cancel</button><button value="default">Reset password</button></div>
+    </form>
+  </dialog>
+  <script src="/account.js"></script>
+  <script src="/admin.js"></script>
+</body>
+</html>

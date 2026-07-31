@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: lindblad-route-planner-cloud
+    runtime: docker
+    plan: standard
+    region: frankfurt
+    autoDeployTrigger: commit
+    healthCheckPath: /api/health
+    maxShutdownDelaySeconds: 300
+    envVars:
+      - key: LINDBLAD_DATA_ROOT
+        value: /data
+      - key: LRP_TRUST_PROXY
+        value: "1"
+      - key: LRP_FORCE_SECURE_COOKIES
+        value: "1"
+      - key: LRP_BOOTSTRAP_ADMIN_USERNAME
+        value: admin
+      - key: LRP_BOOTSTRAP_ADMIN_PASSWORD
+        sync: false
+      - key: LRP_PASSWORD_PEPPER
+        generateValue: true
+    disk:
+      name: lindblad-route-planner-data
+      mountPath: /data
+      sizeGB: 200
