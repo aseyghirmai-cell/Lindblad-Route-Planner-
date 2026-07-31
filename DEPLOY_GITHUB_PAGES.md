@@ -1,30 +1,18 @@
-# Deploy with GitHub Pages — browser only
+# Deploy on GitHub Pages
 
-No software installation and no payment method are required for a public repository.
+## Upgrade an existing planner repository
 
-1. Open the GitHub repository intended for the planner.
-2. Delete server-only files from the previous Render edition, or create a new repository such as `lindblad-route-planner-local-first`.
-3. Upload **the contents of this package** to the repository root. `index.html` must be visible at the top level.
-4. Commit the files to the `main` branch.
-5. Open **Settings → Pages**.
-6. Under **Build and deployment**, choose **GitHub Actions** as the source.
-7. Open the **Actions** tab and wait for `Deploy GitHub Pages` to finish successfully.
-8. Return to **Settings → Pages** to see the public HTTPS address.
+1. Extract the package.
+2. Open the repository on GitHub.
+3. Use **Add file → Upload files**.
+4. Drag in everything inside the extracted folder, including `.github` and `assets`.
+5. Confirm replacement of existing files and commit to `main`.
+6. Open **Settings → Pages** and select **GitHub Actions**.
+7. Open **Actions** and wait for **Deploy GitHub Pages** to finish.
+8. Open the site and use `Ctrl+Shift+R` once to remove the old cached application shell.
 
-The expected address normally resembles:
+The new package fixes the prior 404 problem by using `./app.js`, `./assets/...`, and other repository-relative paths.
 
-```text
-https://YOUR-GITHUB-NAME.github.io/REPOSITORY-NAME/
-```
+## Important hidden folder
 
-## Updating
-
-Replace changed files in GitHub and commit them. The included workflow redeploys the static site automatically.
-
-## Important storage behavior
-
-- OLEX, RTZ and route data belong to the browser profile and device where they were selected.
-- Opening the same public URL on another computer starts with a separate empty local library.
-- Browser restarts preserve data, provided site data is not cleared and storage remains available.
-- Private/incognito browsing must not be used because local data may be deleted when the window closes.
-- A browser backup does not include OLEX indexes. Original OLEX files must be retained.
+Windows may hide `.github`. It must be uploaded because it contains the Pages deployment workflow. GitHub's web uploader can accept it when the whole extracted folder contents are dragged into the upload area.

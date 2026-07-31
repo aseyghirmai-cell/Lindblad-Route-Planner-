@@ -2,210 +2,186 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#071b29">
-  <meta name="description" content="A zero-cost local-first maritime route planner. OLEX and RTZ files stay on your computer.">
-  <title>Lindblad Route Planner Local First</title>
-  <link rel="manifest" href="site.webmanifest">
-  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#071c2c">
+  <meta name="description" content="Lindblad Route Planner AI Corridor — local-first GitHub Pages edition. OLEX and RTZ files remain on the workstation.">
+  <title>Lindblad Route Planner · AI Corridor Local First</title>
+  <link rel="manifest" href="./site.webmanifest">
+  <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./upgrade.css">
 </head>
 <body>
+<div class="app-shell">
   <header class="topbar">
-    <div class="brand">
-      <div class="brand-mark" aria-hidden="true">LRP</div>
+    <div class="brand-block">
+      <div class="brand-mark" aria-hidden="true"></div>
       <div>
-        <p class="eyebrow">LOCAL-FIRST · PRIVATE · ZERO HOSTING COST</p>
+        <div class="eyebrow">LINDBLAD EXPEDITIONS · NATIONAL GEOGRAPHIC</div>
         <h1>Lindblad Route Planner</h1>
-        <p class="subtitle">Edit routes directly over local OLEX depth traces and historical RTZ tracks.</p>
+        <p>AI Corridor Centering · Historical Track Consensus · OLEX Depth Analysis · Local Interactive Editing</p>
       </div>
     </div>
-    <div class="privacy-pill" title="The application is static. Selected files are processed by your browser and are not uploaded.">
-      <span class="privacy-dot"></span>
-      Files stay on this computer
+    <div class="header-actions">
+      <span class="local-private-pill" title="Selected OLEX and RTZ files are processed locally and are not uploaded."><i></i>LOCAL &amp; PRIVATE</span>
+      <button id="openLibraries" class="btn btn-header" type="button">Local Libraries</button>
+      <button id="closeApp" class="btn btn-header" type="button">Close Planner</button>
     </div>
   </header>
 
   <div id="compatWarning" class="compat-warning hidden" role="alert"></div>
 
-  <main class="app-layout">
-    <aside class="left-sidebar">
-      <section class="side-section">
-        <div class="section-heading">
-          <div>
-            <span class="kicker">LOCAL OLEX LIBRARY</span>
-            <h2>Depth databases</h2>
-          </div>
-          <button id="addOlexBtn" class="btn btn-primary small" type="button">Add OLEX</button>
-          <input id="olexInput" type="file" accept=".gz,.olxidx.gz,application/gzip" multiple hidden>
-        </div>
-        <p class="section-help">Files are streamed and indexed locally. Nothing is sent to GitHub or a server. Supported formats: <code>.olxidx.gz</code> and gzip text exports containing latitude, longitude and depth rows.</p>
-        <div id="olexList" class="library-list empty-list">No local OLEX database selected.</div>
-        <div id="indexProgress" class="progress-card hidden">
-          <div class="progress-header"><strong id="indexProgressTitle">Indexing…</strong><span id="indexProgressPct">0%</span></div>
-          <div class="progress-track"><span id="indexProgressBar"></span></div>
-          <p id="indexProgressDetail">Preparing local index.</p>
-        </div>
-      </section>
-
-      <section class="side-section">
-        <div class="section-heading">
-          <div>
-            <span class="kicker">HISTORICAL CORRIDORS</span>
-            <h2>RTZ library</h2>
-          </div>
-          <button id="addRtzBtn" class="btn btn-secondary small" type="button">Add RTZ</button>
-          <input id="rtzInput" type="file" accept=".rtz,.xml,application/xml,text/xml" multiple hidden>
-        </div>
-        <div id="rtzList" class="library-list empty-list">No historical RTZ routes loaded.</div>
-      </section>
-
-      <section class="side-section">
-        <div class="section-heading">
-          <div>
-            <span class="kicker">SAVED LOCALLY</span>
-            <h2>Route plans</h2>
-          </div>
-          <button id="newRouteBtn" class="btn btn-secondary small" type="button">New route</button>
-        </div>
-        <div id="routeLibrary" class="library-list empty-list">No saved route plans.</div>
-      </section>
-
-      <section class="side-section storage-section">
-        <div class="storage-row"><span>Browser storage</span><strong id="storageUsage">Checking…</strong></div>
-        <div class="storage-bar"><span id="storageBar"></span></div>
-        <button id="requestPersistentBtn" class="btn btn-ghost full" type="button">Request persistent local storage</button>
-        <button id="clearLocalBtn" class="btn btn-danger-ghost full" type="button">Clear all local planner data</button>
-      </section>
-    </aside>
-
-    <section class="workspace">
-      <div class="map-toolbar">
-        <div class="toolbar-group">
-          <button id="importEditableRtzBtn" class="btn btn-secondary" type="button">Open RTZ as editable route</button>
-          <input id="editableRtzInput" type="file" accept=".rtz,.xml,application/xml,text/xml" hidden>
-          <button id="followRtzBtn" class="btn btn-secondary" type="button" title="Replace the route between its endpoints with the closest imported historical RTZ track">Follow nearest RTZ</button>
-          <button id="addWaypointModeBtn" class="btn btn-secondary" type="button">Add waypoint</button>
-        </div>
-        <div class="toolbar-group">
-          <button id="undoBtn" class="icon-btn" type="button" title="Undo" disabled>↶</button>
-          <button id="redoBtn" class="icon-btn" type="button" title="Redo" disabled>↷</button>
-          <button id="zoomOutBtn" class="icon-btn" type="button" title="Zoom out">−</button>
-          <button id="zoomInBtn" class="icon-btn" type="button" title="Zoom in">+</button>
-          <button id="fitBtn" class="btn btn-secondary" type="button">Fit route</button>
-        </div>
-        <div class="toolbar-group right">
-          <label class="toggle"><input id="showOlexToggle" type="checkbox" checked><span>OLEX</span></label>
-          <label class="toggle"><input id="showRtzToggle" type="checkbox" checked><span>RTZ</span></label>
-          <label class="toggle"><input id="showLandToggle" type="checkbox" checked><span>Land</span></label>
-          <button id="assessBtn" class="btn btn-accent" type="button">Assess route</button>
-          <button id="saveRouteBtn" class="btn btn-primary" type="button">Save locally</button>
-        </div>
-      </div>
-
-      <div id="mapWrap" class="map-wrap" tabindex="0" aria-label="Interactive route map">
-        <canvas id="mapCanvas"></canvas>
-        <div class="map-badge top-left">
-          <span id="mapScale">—</span>
-          <span id="cursorPosition">Move pointer over map</span>
-        </div>
-        <div id="mapMessage" class="map-message hidden"></div>
-        <div class="map-help">Wheel: zoom · drag background: pan · drag waypoint: move · double-click route leg: insert waypoint</div>
-      </div>
-
-      <section class="summary-strip" aria-label="Route summary">
-        <div class="summary-metric"><span>Distance</span><strong id="sumDistance">—</strong></div>
-        <div class="summary-metric"><span>Waypoints</span><strong id="sumWaypoints">—</strong></div>
-        <div class="summary-metric supported"><span>OLEX supported</span><strong id="sumSupported">—</strong></div>
-        <div class="summary-metric review"><span>Officer review</span><strong id="sumReview">—</strong></div>
-        <div class="summary-metric critical"><span>Critical unsupported</span><strong id="sumCritical">—</strong></div>
-        <div class="summary-metric"><span>Historical proximity</span><strong id="sumCorridor">—</strong></div>
-        <div class="summary-metric"><span>ETA</span><strong id="sumEta">—</strong></div>
-      </section>
+  <main>
+    <section class="status-strip" aria-label="Planning database status">
+      <div class="status-item"><span class="status-label">HISTORICAL ROUTES</span><strong id="routeCount">Loading…</strong></div>
+      <div class="status-item"><span class="status-label">DESTINATIONS</span><strong id="destinationCount">Loading…</strong></div>
+      <button id="openOlexHeader" class="status-item status-button" type="button"><span class="status-label">LOCAL OLEX INDEX</span><strong id="olexStorageSize">0 B</strong></button>
+      <div class="status-item"><span class="status-label">VESSEL</span><strong id="vesselName">NG Resolution</strong></div>
+      <div class="status-item"><span class="status-label">STORAGE</span><strong id="storageUsage">Checking…</strong></div>
     </section>
 
-    <aside class="right-sidebar">
-      <section class="inspector-section">
-        <div class="section-heading compact">
-          <div><span class="kicker">ROUTE</span><h2>Plan settings</h2></div>
-        </div>
-        <label class="field"><span>Route name</span><input id="routeNameInput" maxlength="160"></label>
-        <div class="field-grid">
-          <label class="field"><span>Default speed kn</span><input id="defaultSpeedInput" type="number" min="0.1" max="40" step="0.1"></label>
-          <label class="field"><span>Draft m</span><input id="draftInput" type="number" min="0" max="30" step="0.1"></label>
-        </div>
-        <div class="field-grid">
-          <label class="field"><span>Depth margin m</span><input id="clearanceInput" type="number" min="0" max="20" step="0.1"></label>
-          <label class="field"><span>Departure UTC</span><input id="departureInput" type="datetime-local"></label>
-        </div>
-      </section>
+    <div class="workspace-grid">
+      <div class="primary-column">
+        <section class="panel input-panel">
+          <div class="panel-heading"><div class="step-number">1</div><div><h2>Route</h2><p>Select a known destination or enter coordinates as <code>latitude, longitude</code>.</p></div></div>
+          <div class="form-grid two-col">
+            <label class="field"><span>Start</span><input id="startInput" list="startSuggestions" autocomplete="off" placeholder="Destination name or latitude, longitude"><datalist id="startSuggestions"></datalist><small id="startResolved">Not selected</small></label>
+            <label class="field"><span>Destination</span><input id="endInput" list="endSuggestions" autocomplete="off" placeholder="Destination name or latitude, longitude"><datalist id="endSuggestions"></datalist><small id="endResolved">Not selected</small></label>
+          </div>
+          <label class="field route-name-field"><span>Route name</span><input id="routeName" placeholder="Suggested automatically — editable" maxlength="160"></label>
+        </section>
 
-      <section class="inspector-section waypoint-inspector">
-        <div class="section-heading compact">
-          <div><span class="kicker">SELECTED WAYPOINT</span><h2 id="selectedWpTitle">No waypoint selected</h2></div>
-          <button id="deleteWaypointBtn" class="btn btn-danger-ghost small" type="button" disabled>Delete</button>
-        </div>
-        <div id="waypointEditor" class="disabled-editor">
-          <label class="field"><span>Name</span><input id="wpNameInput"></label>
-          <div class="field-grid">
-            <label class="field"><span>Latitude</span><input id="wpLatInput" type="number" step="0.000001"></label>
-            <label class="field"><span>Longitude</span><input id="wpLonInput" type="number" step="0.000001"></label>
+        <section class="panel input-panel">
+          <div class="panel-heading"><div class="step-number">2</div><div><h2>OLEX Database</h2><p>OLEX files are indexed on this workstation. They are never uploaded to GitHub or another server.</p></div></div>
+          <div class="olex-card">
+            <div class="olex-status-icon" id="olexIcon">✓</div>
+            <div class="olex-status-copy"><strong id="olexStatusTitle">Checking local OLEX databases…</strong><span id="olexStatusDetail">Actual support is calculated against the editable route.</span></div>
+            <button id="manageOlex" class="btn btn-secondary" type="button">Manage Databases</button>
+            <button id="browseOlex" type="button" hidden>Browse Computer</button>
+            <input id="olexFile" type="file" accept=".gz,.olxidx.gz,application/gzip" multiple hidden>
           </div>
-          <div class="field-grid">
-            <label class="field"><span>Turn radius NM</span><input id="wpRadiusInput" type="number" min="0" step="0.01"></label>
-            <label class="field"><span>Leg speed kn</span><input id="wpSpeedInput" type="number" min="0" max="40" step="0.1"></label>
-          </div>
-          <div class="field-grid">
-            <label class="field"><span>XTD port NM</span><input id="wpPortXtdInput" type="number" min="0" step="0.01"></label>
-            <label class="field"><span>XTD starboard NM</span><input id="wpStarboardXtdInput" type="number" min="0" step="0.01"></label>
-          </div>
-          <div class="field-grid">
-            <label class="field"><span>Wheel-over NM</span><input id="wpWheelOverInput" type="number" min="0" step="0.01"></label>
-            <label class="field"><span>Geometry</span><select id="wpGeometryInput"><option>Loxodrome</option><option>Orthodrome</option></select></label>
-          </div>
-          <label class="field"><span>Remarks</span><textarea id="wpRemarksInput" rows="3"></textarea></label>
-        </div>
-      </section>
+          <div id="importStatus" class="inline-message hidden" role="status"></div>
+        </section>
 
-      <section class="inspector-section waypoint-list-section">
-        <div class="section-heading compact">
-          <div><span class="kicker">ROUTE DETAILS</span><h2>Waypoints</h2></div>
-          <button id="appendWaypointBtn" class="btn btn-secondary small" type="button">Append</button>
-        </div>
-        <div class="waypoint-list-wrap">
-          <table class="waypoint-table">
-            <thead><tr><th>#</th><th>Name</th><th>Position</th><th>Leg</th></tr></thead>
-            <tbody id="waypointTableBody"></tbody>
-          </table>
-        </div>
-      </section>
+        <section class="panel input-panel">
+          <div class="panel-heading"><div class="step-number">3</div><div><h2>Passage Schedule</h2><p>Enter ship's time and the UTC offset used at departure and arrival.</p></div></div>
+          <div class="timing-grid">
+            <div class="timing-card">
+              <div class="timing-title"><span>DEPARTURE</span><strong id="depUTC">—</strong></div>
+              <div class="form-grid two-col compact"><label class="field"><span>Date</span><input id="depDate" type="date"></label><label class="field"><span>Ship's time</span><input id="depTime" type="time" step="60"></label></div>
+              <label class="field"><span>UTC offset</span><select id="depZone"></select></label>
+            </div>
+            <div class="timing-card">
+              <div class="timing-title"><span>ARRIVAL</span><strong id="arrUTC">—</strong></div>
+              <div class="form-grid two-col compact"><label class="field"><span>Date</span><input id="arrDate" type="date"></label><label class="field"><span>Ship's time</span><input id="arrTime" type="time" step="60"></label></div>
+              <label class="field"><span>UTC offset</span><select id="arrZone"></select></label>
+            </div>
+          </div>
+          <p class="schedule-note">Engine configuration is selected automatically from the speed required to meet the entered ETA.</p>
+          <button id="generateRoute" class="btn btn-generate" type="button"><span>Generate Optimized Route</span></button>
+          <div class="route-engine-card">
+            <div class="engine-heading"><div><span class="section-kicker">ROUTE ENGINE</span><h3 id="engineTitle">Loading historical route catalogue…</h3></div><span id="engineState" class="engine-state">LOADING</span></div>
+            <div class="engine-progress"><span id="engineProgress"></span></div>
+            <div class="engine-checks" aria-live="polite">
+              <div class="engine-check" data-engine-step="0"><i>1</i><span>Building directional historical corridor path…</span></div>
+              <div class="engine-check" data-engine-step="1"><i>2</i><span>Checking combined local OLEX coverage…</span></div>
+              <div class="engine-check" data-engine-step="2"><i>3</i><span>Centering and simplifying the editable route…</span></div>
+              <div class="engine-check" data-engine-step="3"><i>4</i><span>Calculating ETA, turn radii, engine and fuel…</span></div>
+              <div class="engine-check" data-engine-step="4"><i>5</i><span>Preparing interactive route review…</span></div>
+            </div>
+            <div id="generateStatus" class="engine-message hidden" role="status"></div>
+          </div>
+        </section>
+      </div>
 
-      <section class="inspector-section exports-section">
-        <div class="section-heading compact"><div><span class="kicker">EXPORT</span><h2>Route files</h2></div></div>
-        <div class="export-grid">
-          <button id="exportRtzBtn" class="btn btn-secondary" type="button">Export RTZ</button>
-          <button id="exportJsonBtn" class="btn btn-secondary" type="button">Export JSON</button>
-          <button id="exportCsvBtn" class="btn btn-secondary" type="button">Export CSV</button>
-          <button id="backupBtn" class="btn btn-secondary" type="button">Backup routes + RTZ</button>
+      <aside class="secondary-column">
+        <section id="routeSummary" class="panel route-summary">
+          <div class="summary-header"><div class="summary-title"><div class="step-number">4</div><div><span class="section-kicker">ROUTE SUMMARY</span><h2 id="summaryRouteName">Ready for optimization</h2><small>Live overview — recalculated after waypoint edits</small></div></div><span id="summaryBadge" class="badge">STANDBY</span></div>
+          <div id="summaryMetrics" class="summary-metrics muted-summary">
+            <div class="metric"><span>Distance</span><strong id="mDistance">—</strong></div>
+            <div class="metric"><span>Waypoints created</span><strong id="mWaypoints">—</strong></div>
+            <div class="metric"><span>Historical corridor centred</span><strong id="mCorridor">—</strong></div>
+            <div class="metric supported-metric"><span>Combined OLEX support</span><strong id="mSupported">—</strong></div>
+            <div class="metric review-metric"><span>Recommended to review</span><strong id="mReview">—</strong></div>
+            <div id="criticalMetric" class="metric critical-metric zero"><span>Critical unsupported</span><strong id="mUnsupported">—</strong></div>
+            <div class="metric"><span>Required average SOG</span><strong id="mSpeed">—</strong></div>
+            <div class="metric wide"><span>Recommended engine configuration</span><strong id="mEngine">—</strong></div>
+            <div class="metric"><span>Estimated fuel</span><strong id="mFuel">—</strong></div>
+            <div class="metric"><span>Required ETA UTC</span><strong id="mArrival">—</strong></div>
+          </div>
+          <div class="coverage-bar" aria-label="Route support distribution"><span id="supportBarSupported" class="bar-supported"></span><span id="supportBarReview" class="bar-review"></span><span id="supportBarUnsupported" class="bar-unsupported"></span></div>
+          <div class="coverage-legend"><span><i class="dot supported"></i>OLEX supported</span><span><i class="dot review"></i>Recommended to review</span><span id="criticalLegend"><i class="dot unsupported"></i>Critical unsupported</span></div>
+          <div id="olexContribution" class="olex-contribution"></div>
+          <div id="summaryNotice" class="summary-notice">Generate or open a route to calculate geometry, local OLEX support, required speed, engine configuration and fuel.</div>
+          <div class="summary-actions"><button id="reviewWaypoints" class="btn btn-secondary" type="button" disabled>Review Waypoints</button><button id="routePreview" class="btn btn-secondary" type="button" disabled>Open Interactive Editor</button><button id="validateRoute" class="btn btn-secondary" type="button" disabled>Validate Route</button></div>
+          <div class="export-actions"><a id="exportRTZ" class="btn btn-export disabled" href="#" aria-disabled="true">Export RTZ</a><a id="exportOlex" class="btn btn-export-alt disabled" href="#" aria-disabled="true">Export OLEX Plot GZ</a></div>
+          <div class="summary-actions lower-actions"><button id="saveRouteBtn" class="btn btn-primary" type="button">Save Locally</button><button id="backupBtn" class="btn btn-secondary" type="button">Backup Routes + RTZ</button></div>
+        </section>
+      </aside>
+    </div>
+
+    <section id="interactiveEditor" class="panel editor-panel">
+      <div class="panel-heading editor-heading"><div><span class="section-kicker">INTERACTIVE ROUTE REVIEW</span><h2>OLEX background and draggable waypoint editor</h2><p>Zoom and pan the local OLEX traces, then drag waypoints directly over the depth background. Every change is reassessed locally.</p></div><span class="local-only-tag">NO FILE UPLOAD</span></div>
+      <div class="map-toolbar">
+        <div class="toolbar-group"><button id="importEditableRtzBtn" class="btn btn-secondary" type="button">Open RTZ as Editable Route</button><input id="editableRtzInput" type="file" accept=".rtz,.xml,application/xml,text/xml" hidden><button id="followRtzBtn" class="btn btn-secondary" type="button">Follow Nearest RTZ</button><button id="addWaypointModeBtn" class="btn btn-secondary" type="button">Add Waypoint</button><button id="appendWaypointBtn" class="btn btn-secondary" type="button">Append</button></div>
+        <div class="toolbar-group"><button id="undoBtn" class="map-icon-btn" type="button" title="Undo" disabled>↶</button><button id="redoBtn" class="map-icon-btn" type="button" title="Redo" disabled>↷</button><button id="zoomOutBtn" class="map-icon-btn" type="button" title="Zoom out">−</button><button id="zoomInBtn" class="map-icon-btn" type="button" title="Zoom in">+</button><button id="fitBtn" class="btn btn-secondary" type="button">Fit Route</button></div>
+        <div class="toolbar-group right"><label class="map-toggle"><input id="showOlexToggle" type="checkbox" checked><span>OLEX</span></label><label class="map-toggle"><input id="showRtzToggle" type="checkbox" checked><span>RTZ</span></label><label class="map-toggle"><input id="showLandToggle" type="checkbox" checked><span>Land</span></label><button id="assessBtn" class="btn btn-secondary" type="button">Reassess</button></div>
+      </div>
+      <div class="editor-grid">
+        <div class="map-column">
+          <div id="mapWrap" class="map-wrap" tabindex="0" aria-label="Interactive route map"><canvas id="mapCanvas"></canvas><div class="map-badge top-left"><span id="mapScale">—</span><span id="cursorPosition">Move pointer over map</span></div><div id="mapMessage" class="map-message hidden"></div><div class="map-help">Wheel: zoom · drag background: pan · drag waypoint: move · double-click route leg: insert waypoint</div></div>
+          <div class="mini-summary" aria-hidden="true"><span id="sumDistance">—</span><span id="sumWaypoints">—</span><span id="sumSupported">—</span><span id="sumReview">—</span><span id="sumCritical">—</span><span id="sumCorridor">—</span><span id="sumEta">—</span></div>
         </div>
-        <input id="restoreInput" type="file" accept=".json,application/json" hidden>
-        <button id="restoreBtn" class="btn btn-ghost full" type="button">Restore local backup</button>
-      </section>
-    </aside>
+        <aside class="waypoint-inspector">
+          <div class="inspector-title"><div><span class="section-kicker">SELECTED WAYPOINT</span><h3 id="selectedWpTitle">No waypoint selected</h3></div><button id="deleteWaypointBtn" class="btn btn-danger-ghost" type="button" disabled>Delete</button></div>
+          <div id="waypointEditor" class="disabled-editor">
+            <label class="field"><span>Name</span><input id="wpNameInput"></label>
+            <div class="form-grid two-col compact"><label class="field"><span>Latitude</span><input id="wpLatInput" type="number" step="0.000001"></label><label class="field"><span>Longitude</span><input id="wpLonInput" type="number" step="0.000001"></label></div>
+            <div class="form-grid two-col compact"><label class="field"><span>Turn radius NM</span><input id="wpRadiusInput" type="number" min="0" step="0.01"></label><label class="field"><span>Leg speed kn</span><input id="wpSpeedInput" type="number" min="0" max="40" step="0.1"></label></div>
+            <div class="form-grid two-col compact"><label class="field"><span>XTD port NM</span><input id="wpPortXtdInput" type="number" min="0" step="0.01"></label><label class="field"><span>XTD starboard NM</span><input id="wpStarboardXtdInput" type="number" min="0" step="0.01"></label></div>
+            <div class="form-grid two-col compact"><label class="field"><span>Wheel-over NM</span><input id="wpWheelOverInput" type="number" min="0" step="0.01"></label><label class="field"><span>Geometry</span><select id="wpGeometryInput"><option>Loxodrome</option><option>Orthodrome</option></select></label></div>
+            <label class="field"><span>Remarks</span><textarea id="wpRemarksInput" rows="3"></textarea></label>
+          </div>
+          <div class="route-settings-block"><span class="section-kicker">ROUTE SETTINGS</span><label class="field"><span>Route name</span><input id="routeNameInput" maxlength="160"></label><div class="form-grid two-col compact"><label class="field"><span>Default speed kn</span><input id="defaultSpeedInput" type="number" min="0.1" max="40" step="0.1"></label><label class="field"><span>Draft m</span><input id="draftInput" type="number" min="0" max="30" step="0.1"></label></div><div class="form-grid two-col compact"><label class="field"><span>Depth margin m</span><input id="clearanceInput" type="number" min="0" max="20" step="0.1"></label><label class="field"><span>Departure UTC</span><input id="departureInput" type="datetime-local"></label></div></div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="waypointSection" class="panel waypoint-panel hidden">
+      <div class="panel-heading table-heading"><div><span class="section-kicker">ROUTE DETAILS</span><h2>Waypoints and leg comments</h2></div><button id="closeWaypoints" class="btn btn-ghost" type="button">Hide</button></div>
+      <div class="table-wrap"><table><thead><tr><th>WP</th><th>Position</th><th>Course</th><th>Distance</th><th>Radius</th><th>Speed</th><th>ETA UTC</th><th>Support</th><th>Comment</th></tr></thead><tbody id="waypointRows"></tbody></table></div>
+      <div class="hidden-table-source"><table><tbody id="waypointTableBody"></tbody></table></div>
+    </section>
   </main>
 
-  <footer class="footer">
-    <strong>Planning aid only.</strong> Final route approval requires independent ECDIS/ENC, UKC, XTD, SMS and bridge-team checks. OLEX support reflects only the locally indexed data selected by the user.
-  </footer>
+  <footer><strong>Planning aid.</strong> Final route approval requires independent ECDIS, ENC, UKC/XTD, SMS and bridge-team checks. Files and indexes remain on this workstation.</footer>
+</div>
 
-  <dialog id="confirmDialog">
-    <form method="dialog" class="dialog-card">
-      <h2 id="confirmTitle">Confirm</h2>
-      <p id="confirmText"></p>
-      <div class="dialog-actions"><button value="cancel" class="btn btn-secondary">Cancel</button><button id="confirmOk" value="ok" class="btn btn-danger">Continue</button></div>
-    </form>
-  </dialog>
+<dialog id="olexDialog">
+  <div class="dialog-header"><div><span class="section-kicker">LOCAL OLEX DATABASE</span><h2>Stored OLEX indexes</h2><p>Add, rename, enable, disable or remove OLEX databases stored in this browser profile.</p></div><button class="icon-button" data-close-dialog="olexDialog" aria-label="Close">×</button></div>
+  <div id="olexList" class="area-list empty-list">No local OLEX database selected.</div>
+  <div id="indexProgress" class="import-progress hidden" aria-live="polite"><div class="import-progress-head"><strong id="indexProgressTitle">Preparing OLEX import…</strong><span id="indexProgressPct">0%</span></div><div class="import-progress-track"><span id="indexProgressBar"></span></div><small id="indexProgressDetail">The source file stays on this computer. Keep this tab open until indexing finishes.</small></div>
+  <div class="large-import-note"><strong>Large databases:</strong> choose the file directly from the workstation. The browser streams and indexes it into private local storage instead of uploading it.<br><small>For reliable retention, request persistent local storage before indexing.</small></div>
+  <div class="storage-tools"><div class="storage-bar"><span id="storageBar"></span></div><button id="requestPersistentBtn" class="btn btn-secondary" type="button">Request Persistent Local Storage</button></div>
+  <div class="dialog-actions"><button id="addOlexBtn" class="btn btn-primary" type="button">Add OLEX Database</button><input id="olexInput" type="file" accept=".gz,.olxidx.gz,application/gzip" multiple hidden><button id="largeOlexPicker" class="btn btn-secondary" type="button">Select Large OLEX File</button><button class="btn btn-secondary" data-close-dialog="olexDialog" type="button">Close</button></div>
+</dialog>
 
-  <script src="app.js" defer></script>
+<dialog id="librariesDialog" class="wide-dialog library-dialog">
+  <div class="dialog-header"><div><span class="section-kicker">LOCAL WORKSTATION LIBRARIES</span><h2>Historical RTZ and saved route plans</h2><p>Everything listed here is private to this browser profile and persists after normal restarts.</p></div><button class="icon-button" data-close-dialog="librariesDialog" aria-label="Close">×</button></div>
+  <div class="library-dialog-grid">
+    <section><div class="library-heading"><div><span class="section-kicker">HISTORICAL CORRIDORS</span><h3>RTZ library</h3></div><button id="addRtzBtn" class="btn btn-secondary" type="button">Add RTZ</button><input id="rtzInput" type="file" accept=".rtz,.xml,application/xml,text/xml" multiple hidden></div><div id="rtzList" class="area-list empty-list">No historical RTZ routes loaded.</div></section>
+    <section><div class="library-heading"><div><span class="section-kicker">SAVED LOCALLY</span><h3>Route plans</h3></div><button id="newRouteBtn" class="btn btn-secondary" type="button">New Route</button></div><div id="routeLibrary" class="area-list empty-list">No saved route plans.</div></section>
+  </div>
+  <div class="dialog-actions"><button id="exportRtzBtn" type="button" hidden></button><button id="exportJsonBtn" class="btn btn-secondary" type="button">Export Route JSON</button><button id="exportCsvBtn" class="btn btn-secondary" type="button">Export Route CSV</button><button id="restoreBtn" class="btn btn-secondary" type="button">Restore Backup</button><input id="restoreInput" type="file" accept=".json,application/json" hidden><button id="clearLocalBtn" class="btn btn-danger-ghost" type="button">Clear All Local Planner Data</button><button class="btn btn-secondary" data-close-dialog="librariesDialog" type="button">Close</button></div>
+</dialog>
+
+<dialog id="validationDialog">
+  <div class="dialog-header"><div><span class="section-kicker">VALIDATION</span><h2>Route validation</h2></div><button class="icon-button" data-close-dialog="validationDialog" aria-label="Close">×</button></div>
+  <div id="validationBody"></div><div class="dialog-actions"><button class="btn btn-secondary" data-close-dialog="validationDialog" type="button">Close</button></div>
+</dialog>
+
+<dialog id="confirmDialog"><form method="dialog" class="confirm-card"><h2 id="confirmTitle">Confirm</h2><p id="confirmText"></p><div class="dialog-actions"><button value="cancel" class="btn btn-secondary">Cancel</button><button id="confirmOk" value="ok" class="btn btn-danger">Continue</button></div></form></dialog>
+
+<script src="./app.js" defer></script>
 </body>
 </html>

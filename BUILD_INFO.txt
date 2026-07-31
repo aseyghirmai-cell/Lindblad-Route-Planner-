@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<route xmlns="http://www.cirm.org/RTZ/1/2" version="1.2">
+  <routeInfo routeName="Antarctic Local-First Demo"/>
+  <waypoints>
+    <waypoint id="1" radius="0.100"><position lat="-64.75000000" lon="-62.90000000"/><name>DEMO 1</name><leg geometryType="Loxodrome" speedMin="10.00" xtdPort="0.100" xtdStarboard="0.100" wheelOverLine="0.000"/></waypoint>
+    <waypoint id="2" radius="0.150"><position lat="-64.82000000" lon="-62.70000000"/><name>DEMO 2</name><leg geometryType="Loxodrome" speedMin="10.00" xtdPort="0.100" xtdStarboard="0.100" wheelOverLine="0.000"/></waypoint>
+    <waypoint id="3" radius="0.120"><position lat="-64.90000000" lon="-62.48000000"/><name>DEMO 3</name><leg geometryType="Loxodrome" speedMin="10.00" xtdPort="0.100" xtdStarboard="0.100" wheelOverLine="0.000"/></waypoint>
+  </waypoints>
+</route>

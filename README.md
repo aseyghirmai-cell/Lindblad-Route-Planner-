@@ -1,52 +1,34 @@
-# Lindblad Route Planner Local First 1.0
+# Lindblad Route Planner — AI Corridor 3.0 Local First
 
-A static, zero-hosting-cost maritime route-planning web application for GitHub Pages.
+A zero-hosting-cost GitHub Pages route planner that retains the AI Corridor 2.5 layout and embedded historical route catalogue while adding a fully interactive local map editor.
 
-![Planner preview](PREVIEW.png)
+## Included functions
 
-## Privacy model
+- Embedded historical catalogue: 1,768 routes and 5,528 destination records.
+- Browser-side historical graph route generation.
+- Start/destination search and coordinate entry.
+- Departure/arrival ship-time and UTC-offset conversion.
+- Required speed, engine configuration and estimated fuel calculation.
+- Local OLEX import, tiled indexing, enable/disable, rename and removal.
+- Local RTZ library management.
+- Original route summary, support distribution, validation and waypoint review.
+- Interactive route review with OLEX traces, land, RTZ overlays, zoom and pan.
+- Drag, add, append, insert and delete waypoints.
+- Edit waypoint name, coordinates, turn radius, speed, XTD, wheel-over, geometry and remarks.
+- Undo and redo.
+- Persistent local route plans and automatic draft recovery.
+- RTZ, OLEX plot gzip, JSON and CSV exports.
+- Route/RTZ backup and restore.
+- GitHub Actions deployment workflow.
 
-The web host serves only the application files. OLEX databases, RTZ routes and saved route plans are processed and stored by the user's browser on the user's computer. The application contains no upload API, user accounts or central database.
+## Privacy and cost
 
-## Main functions
+The website itself is hosted by GitHub Pages. Selected OLEX and RTZ files are processed locally by the browser and are not uploaded. There are no central accounts or synchronized databases.
 
-- Select `.olxidx.gz` files or supported gzip sounding exports containing `latitude longitude depth` rows.
-- Stream and tile OLEX data into the browser's local Origin Private File System (OPFS).
-- Import multiple RTZ routes as historical corridor overlays.
-- Open an RTZ route for editing.
-- Drag, insert, append and delete waypoints directly in the map.
-- Edit waypoint name, latitude, longitude, turn radius, speed, port/starboard XTD, wheel-over distance, geometry and remarks.
-- Zoom and pan over local OLEX depth traces with the editable route drawn above them.
-- Save route plans locally and export RTZ, JSON and CSV.
-- Back up and restore saved routes and RTZ libraries as JSON.
-- Cache the application shell for offline use after the first visit.
+## Browser support
 
-## Browser requirement
+Use a current Chrome or Edge release over HTTPS. Large OLEX indexing depends on IndexedDB, Origin Private File System, streaming gzip and persistent browser storage.
 
-Use a current desktop version of **Google Chrome or Microsoft Edge**. Large OLEX indexing depends on:
+## Operational limitation
 
-- `DecompressionStream`
-- IndexedDB
-- Origin Private File System through `navigator.storage.getDirectory()`
-
-Safari and Firefox support varies and should not be used for a large operational library without testing.
-
-## Large OLEX databases
-
-There is no application-defined upload ceiling because the file is not uploaded. The practical limit is the browser's storage quota and the free disk space on the user's computer.
-
-Before importing a large database, click **Request persistent local storage**. The browser will create a local geographic tile index. This may require substantial additional disk space and can take a long time for a 50–60 GB compressed file. Keep the tab open during the first index build; gzip indexing cannot reliably resume from the middle after the tab is closed.
-
-The original OLEX source file is never changed. Clearing site data or deleting the local OLEX index removes the browser index, not the source file.
-
-## GitHub Pages deployment
-
-See `DEPLOY_GITHUB_PAGES.md`. No Docker, Caddy, server or local software installation is required.
-
-## Test files
-
-The `samples` folder contains a small RTZ route and a synthetic gzip sounding export. They are for interface testing only and are not navigational data.
-
-## Safety
-
-This is a planning aid and not an approved ECDIS/ECS. Route approval still requires official charts, UKC calculations, XTD checks, the vessel's SMS, bridge-team review and all applicable regulations.
+This remains a planning aid. It is not an ECDIS and does not replace approved ENCs, OLEX, UKC/XTD checks, SMS procedures or bridge-team approval.

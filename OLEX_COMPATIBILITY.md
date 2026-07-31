@@ -1,16 +1,21 @@
-# OLEX file compatibility
+# OLEX compatibility
 
-The static browser edition can index these formats:
+Supported local source formats:
 
-1. `.olxidx.gz` files created by the Lindblad planner/indexer, using the `OLXGRID1` binary format.
-2. Gzip text sounding exports where each valid row begins with:
+1. `.olxidx.gz` using the `OLXGRID1` indexed format.
+2. Gzip-compressed text exports containing latitude, longitude and depth rows.
 
-```text
-latitude longitude depth
-```
+The application streams the compressed source and writes one-degree geographic tiles into the browser's private local file system. The original source file is not changed and is not uploaded.
 
-Blank lines, comments beginning with `#`, and additional columns are ignored.
+A proprietary native OLEX backup whose internal format is not one of the formats above cannot be interpreted automatically.
 
-The browser edition does **not** directly parse proprietary native OLEX backup media, ISO images, TGZ archives, split archives or undocumented internal OLEX database files. Those must first be exported or converted to one of the supported formats.
+## Large files
 
-For very large files, the first browser-side index build may take a long time and requires extra local disk space. Keep the page open until it finishes. The generated geographic index remains local to that browser profile.
+The application does not impose a fixed source-size limit, but actual capacity depends on:
+
+- free workstation disk space;
+- browser storage quota;
+- whether persistent storage was granted;
+- browser stability during the initial index build.
+
+A complete 50–60 GB operational collection must be tested on the intended workstation before relying on it. Keep the tab open until indexing reports completion.
