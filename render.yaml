@@ -6,7 +6,6 @@ services:
     region: frankfurt
     autoDeployTrigger: commit
     healthCheckPath: /api/health
-    maxShutdownDelaySeconds: 300
     envVars:
       - key: LINDBLAD_DATA_ROOT
         value: /data
