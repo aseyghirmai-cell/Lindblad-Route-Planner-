@@ -1,37 +1,52 @@
-# Lindblad Route Planner Cloud 1.0
+# Lindblad Route Planner Local First 1.0
 
-A browser-based, multi-user expedition route planner with persistent OLEX and RTZ libraries, historical-corridor route generation, route assessment, and an interactive waypoint editor.
+A static, zero-hosting-cost maritime route-planning web application for GitHub Pages.
 
-## Deploy without installing software
+![Planner preview](PREVIEW.png)
 
-This repository is prepared for **Render Blueprint deployment**. You only need a web browser, a GitHub account, and a Render account.
+## Privacy model
 
-1. Create a new GitHub repository named `lindblad-route-planner-cloud`.
-2. Upload all files from this repository package to the root of that repository.
-3. In Render, choose **New → Blueprint**, connect the GitHub repository, and deploy `render.yaml`.
-4. Render asks for `LRP_BOOTSTRAP_ADMIN_PASSWORD`. Enter a long, unique administrator password.
-5. Open the generated `https://...onrender.com` address and sign in as `admin`.
+The web host serves only the application files. OLEX databases, RTZ routes and saved route plans are processed and stored by the user's browser on the user's computer. The application contains no upload API, user accounts or central database.
 
-Read [DEPLOY_ON_RENDER.md](DEPLOY_ON_RENDER.md) for the exact browser-only procedure.
+## Main functions
 
-## Included application features
+- Select `.olxidx.gz` files or supported gzip sounding exports containing `latitude longitude depth` rows.
+- Stream and tile OLEX data into the browser's local Origin Private File System (OPFS).
+- Import multiple RTZ routes as historical corridor overlays.
+- Open an RTZ route for editing.
+- Drag, insert, append and delete waypoints directly in the map.
+- Edit waypoint name, latitude, longitude, turn radius, speed, port/starboard XTD, wheel-over distance, geometry and remarks.
+- Zoom and pan over local OLEX depth traces with the editable route drawn above them.
+- Save route plans locally and export RTZ, JSON and CSV.
+- Back up and restore saved routes and RTZ libraries as JSON.
+- Cache the application shell for offline use after the first visit.
 
-- Individual usernames and passwords.
-- Administrator, planner, and read-only roles.
-- Organization-separated workspaces.
-- Persistent OLEX databases, RTZ routes, uploads, accounts, and saved route plans.
-- Resumable chunked browser uploads.
-- Historical RTZ corridor routing and combined OLEX support assessment.
-- Editable waypoint names, positions, turn radii, XTD, speed, wheel-over, geometry, and remarks.
-- Interactive route review with zoom, pan, OLEX-derived background traces, and draggable waypoints.
-- RTZ, OLEX plot, and Route JSON export.
+## Browser requirement
 
-## Storage model
+Use a current desktop version of **Google Chrome or Microsoft Edge**. Large OLEX indexing depends on:
 
-`render.yaml` provisions one 200 GB persistent disk at `/data`. The application has no hard-coded database-count limit, but real capacity is limited by the purchased disk size, network bandwidth, and processing time. Increase the Render disk before uploading data that will not fit alongside indexes, route files, temporary chunks, and backups.
+- `DecompressionStream`
+- IndexedDB
+- Origin Private File System through `navigator.storage.getDirectory()`
 
-The current build is intentionally a **single-instance deployment** because its account state, route plans, manifests, and indexed marine data are file-backed. It is not a horizontally scaled SaaS architecture yet.
+Safari and Firefox support varies and should not be used for a large operational library without testing.
 
-## Safety status
+## Large OLEX databases
 
-This software is a planning aid and an engineering MVP. It has not received independent penetration testing, type approval, classification approval, or operational validation against the complete production OLEX collection. It does not replace approved ENC/ECDIS, OLEX, UKC/XTD calculations, company SMS procedures, or bridge-team route checking.
+There is no application-defined upload ceiling because the file is not uploaded. The practical limit is the browser's storage quota and the free disk space on the user's computer.
+
+Before importing a large database, click **Request persistent local storage**. The browser will create a local geographic tile index. This may require substantial additional disk space and can take a long time for a 50–60 GB compressed file. Keep the tab open during the first index build; gzip indexing cannot reliably resume from the middle after the tab is closed.
+
+The original OLEX source file is never changed. Clearing site data or deleting the local OLEX index removes the browser index, not the source file.
+
+## GitHub Pages deployment
+
+See `DEPLOY_GITHUB_PAGES.md`. No Docker, Caddy, server or local software installation is required.
+
+## Test files
+
+The `samples` folder contains a small RTZ route and a synthetic gzip sounding export. They are for interface testing only and are not navigational data.
+
+## Safety
+
+This is a planning aid and not an approved ECDIS/ECS. Route approval still requires official charts, UKC calculations, XTD checks, the vessel's SMS, bridge-team review and all applicable regulations.

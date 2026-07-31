@@ -1,0 +1,10 @@
+{
+  "name": "Lindblad Route Planner Local First",
+  "short_name": "Lindblad Planner",
+  "description": "Local-first OLEX and RTZ route planning in the browser.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#071b29",
+  "theme_color": "#071b29",
+  "icons": [{"src":"assets/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}

@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071b29">
+  <meta name="description" content="A zero-cost local-first maritime route planner. OLEX and RTZ files stay on your computer.">
+  <title>Lindblad Route Planner Local First</title>
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">LRP</div>
+      <div>
+        <p class="eyebrow">LOCAL-FIRST · PRIVATE · ZERO HOSTING COST</p>
+        <h1>Lindblad Route Planner</h1>
+        <p class="subtitle">Edit routes directly over local OLEX depth traces and historical RTZ tracks.</p>
+      </div>
+    </div>
+    <div class="privacy-pill" title="The application is static. Selected files are processed by your browser and are not uploaded.">
+      <span class="privacy-dot"></span>
+      Files stay on this computer
+    </div>
+  </header>
+
+  <div id="compatWarning" class="compat-warning hidden" role="alert"></div>
+
+  <main class="app-layout">
+    <aside class="left-sidebar">
+      <section class="side-section">
+        <div class="section-heading">
+          <div>
+            <span class="kicker">LOCAL OLEX LIBRARY</span>
+            <h2>Depth databases</h2>
+          </div>
+          <button id="addOlexBtn" class="btn btn-primary small" type="button">Add OLEX</button>
+          <input id="olexInput" type="file" accept=".gz,.olxidx.gz,application/gzip" multiple hidden>
+        </div>
+        <p class="section-help">Files are streamed and indexed locally. Nothing is sent to GitHub or a server. Supported formats: <code>.olxidx.gz</code> and gzip text exports containing latitude, longitude and depth rows.</p>
+        <div id="olexList" class="library-list empty-list">No local OLEX database selected.</div>
+        <div id="indexProgress" class="progress-card hidden">
+          <div class="progress-header"><strong id="indexProgressTitle">Indexing…</strong><span id="indexProgressPct">0%</span></div>
+          <div class="progress-track"><span id="indexProgressBar"></span></div>
+          <p id="indexProgressDetail">Preparing local index.</p>
+        </div>
+      </section>
+
+      <section class="side-section">
+        <div class="section-heading">
+          <div>
+            <span class="kicker">HISTORICAL CORRIDORS</span>
+            <h2>RTZ library</h2>
+          </div>
+          <button id="addRtzBtn" class="btn btn-secondary small" type="button">Add RTZ</button>
+          <input id="rtzInput" type="file" accept=".rtz,.xml,application/xml,text/xml" multiple hidden>
+        </div>
+        <div id="rtzList" class="library-list empty-list">No historical RTZ routes loaded.</div>
+      </section>
+
+      <section class="side-section">
+        <div class="section-heading">
+          <div>
+            <span class="kicker">SAVED LOCALLY</span>
+            <h2>Route plans</h2>
+          </div>
+          <button id="newRouteBtn" class="btn btn-secondary small" type="button">New route</button>
+        </div>
+        <div id="routeLibrary" class="library-list empty-list">No saved route plans.</div>
+      </section>
+
+      <section class="side-section storage-section">
+        <div class="storage-row"><span>Browser storage</span><strong id="storageUsage">Checking…</strong></div>
+        <div class="storage-bar"><span id="storageBar"></span></div>
+        <button id="requestPersistentBtn" class="btn btn-ghost full" type="button">Request persistent local storage</button>
+        <button id="clearLocalBtn" class="btn btn-danger-ghost full" type="button">Clear all local planner data</button>
+      </section>
+    </aside>
+
+    <section class="workspace">
+      <div class="map-toolbar">
+        <div class="toolbar-group">
+          <button id="importEditableRtzBtn" class="btn btn-secondary" type="button">Open RTZ as editable route</button>
+          <input id="editableRtzInput" type="file" accept=".rtz,.xml,application/xml,text/xml" hidden>
+          <button id="followRtzBtn" class="btn btn-secondary" type="button" title="Replace the route between its endpoints with the closest imported historical RTZ track">Follow nearest RTZ</button>
+          <button id="addWaypointModeBtn" class="btn btn-secondary" type="button">Add waypoint</button>
+        </div>
+        <div class="toolbar-group">
+          <button id="undoBtn" class="icon-btn" type="button" title="Undo" disabled>↶</button>
+          <button id="redoBtn" class="icon-btn" type="button" title="Redo" disabled>↷</button>
+          <button id="zoomOutBtn" class="icon-btn" type="button" title="Zoom out">−</button>
+          <button id="zoomInBtn" class="icon-btn" type="button" title="Zoom in">+</button>
+          <button id="fitBtn" class="btn btn-secondary" type="button">Fit route</button>
+        </div>
+        <div class="toolbar-group right">
+          <label class="toggle"><input id="showOlexToggle" type="checkbox" checked><span>OLEX</span></label>
+          <label class="toggle"><input id="showRtzToggle" type="checkbox" checked><span>RTZ</span></label>
+          <label class="toggle"><input id="showLandToggle" type="checkbox" checked><span>Land</span></label>
+          <button id="assessBtn" class="btn btn-accent" type="button">Assess route</button>
+          <button id="saveRouteBtn" class="btn btn-primary" type="button">Save locally</button>
+        </div>
+      </div>
+
+      <div id="mapWrap" class="map-wrap" tabindex="0" aria-label="Interactive route map">
+        <canvas id="mapCanvas"></canvas>
+        <div class="map-badge top-left">
+          <span id="mapScale">—</span>
+          <span id="cursorPosition">Move pointer over map</span>
+        </div>
+        <div id="mapMessage" class="map-message hidden"></div>
+        <div class="map-help">Wheel: zoom · drag background: pan · drag waypoint: move · double-click route leg: insert waypoint</div>
+      </div>
+
+      <section class="summary-strip" aria-label="Route summary">
+        <div class="summary-metric"><span>Distance</span><strong id="sumDistance">—</strong></div>
+        <div class="summary-metric"><span>Waypoints</span><strong id="sumWaypoints">—</strong></div>
+        <div class="summary-metric supported"><span>OLEX supported</span><strong id="sumSupported">—</strong></div>
+        <div class="summary-metric review"><span>Officer review</span><strong id="sumReview">—</strong></div>
+        <div class="summary-metric critical"><span>Critical unsupported</span><strong id="sumCritical">—</strong></div>
+        <div class="summary-metric"><span>Historical proximity</span><strong id="sumCorridor">—</strong></div>
+        <div class="summary-metric"><span>ETA</span><strong id="sumEta">—</strong></div>
+      </section>
+    </section>
+
+    <aside class="right-sidebar">
+      <section class="inspector-section">
+        <div class="section-heading compact">
+          <div><span class="kicker">ROUTE</span><h2>Plan settings</h2></div>
+        </div>
+        <label class="field"><span>Route name</span><input id="routeNameInput" maxlength="160"></label>
+        <div class="field-grid">
+          <label class="field"><span>Default speed kn</span><input id="defaultSpeedInput" type="number" min="0.1" max="40" step="0.1"></label>
+          <label class="field"><span>Draft m</span><input id="draftInput" type="number" min="0" max="30" step="0.1"></label>
+        </div>
+        <div class="field-grid">
+          <label class="field"><span>Depth margin m</span><input id="clearanceInput" type="number" min="0" max="20" step="0.1"></label>
+          <label class="field"><span>Departure UTC</span><input id="departureInput" type="datetime-local"></label>
+        </div>
+      </section>
+
+      <section class="inspector-section waypoint-inspector">
+        <div class="section-heading compact">
+          <div><span class="kicker">SELECTED WAYPOINT</span><h2 id="selectedWpTitle">No waypoint selected</h2></div>
+          <button id="deleteWaypointBtn" class="btn btn-danger-ghost small" type="button" disabled>Delete</button>
+        </div>
+        <div id="waypointEditor" class="disabled-editor">
+          <label class="field"><span>Name</span><input id="wpNameInput"></label>
+          <div class="field-grid">
+            <label class="field"><span>Latitude</span><input id="wpLatInput" type="number" step="0.000001"></label>
+            <label class="field"><span>Longitude</span><input id="wpLonInput" type="number" step="0.000001"></label>
+          </div>
+          <div class="field-grid">
+            <label class="field"><span>Turn radius NM</span><input id="wpRadiusInput" type="number" min="0" step="0.01"></label>
+            <label class="field"><span>Leg speed kn</span><input id="wpSpeedInput" type="number" min="0" max="40" step="0.1"></label>
+          </div>
+          <div class="field-grid">
+            <label class="field"><span>XTD port NM</span><input id="wpPortXtdInput" type="number" min="0" step="0.01"></label>
+            <label class="field"><span>XTD starboard NM</span><input id="wpStarboardXtdInput" type="number" min="0" step="0.01"></label>
+          </div>
+          <div class="field-grid">
+            <label class="field"><span>Wheel-over NM</span><input id="wpWheelOverInput" type="number" min="0" step="0.01"></label>
+            <label class="field"><span>Geometry</span><select id="wpGeometryInput"><option>Loxodrome</option><option>Orthodrome</option></select></label>
+          </div>
+          <label class="field"><span>Remarks</span><textarea id="wpRemarksInput" rows="3"></textarea></label>
+        </div>
+      </section>
+
+      <section class="inspector-section waypoint-list-section">
+        <div class="section-heading compact">
+          <div><span class="kicker">ROUTE DETAILS</span><h2>Waypoints</h2></div>
+          <button id="appendWaypointBtn" class="btn btn-secondary small" type="button">Append</button>
+        </div>
+        <div class="waypoint-list-wrap">
+          <table class="waypoint-table">
+            <thead><tr><th>#</th><th>Name</th><th>Position</th><th>Leg</th></tr></thead>
+            <tbody id="waypointTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="inspector-section exports-section">
+        <div class="section-heading compact"><div><span class="kicker">EXPORT</span><h2>Route files</h2></div></div>
+        <div class="export-grid">
+          <button id="exportRtzBtn" class="btn btn-secondary" type="button">Export RTZ</button>
+          <button id="exportJsonBtn" class="btn btn-secondary" type="button">Export JSON</button>
+          <button id="exportCsvBtn" class="btn btn-secondary" type="button">Export CSV</button>
+          <button id="backupBtn" class="btn btn-secondary" type="button">Backup routes + RTZ</button>
+        </div>
+        <input id="restoreInput" type="file" accept=".json,application/json" hidden>
+        <button id="restoreBtn" class="btn btn-ghost full" type="button">Restore local backup</button>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <strong>Planning aid only.</strong> Final route approval requires independent ECDIS/ENC, UKC, XTD, SMS and bridge-team checks. OLEX support reflects only the locally indexed data selected by the user.
+  </footer>
+
+  <dialog id="confirmDialog">
+    <form method="dialog" class="dialog-card">
+      <h2 id="confirmTitle">Confirm</h2>
+      <p id="confirmText"></p>
+      <div class="dialog-actions"><button value="cancel" class="btn btn-secondary">Cancel</button><button id="confirmOk" value="ok" class="btn btn-danger">Continue</button></div>
+    </form>
+  </dialog>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
